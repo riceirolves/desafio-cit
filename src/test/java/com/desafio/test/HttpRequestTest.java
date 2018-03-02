@@ -24,15 +24,38 @@ public class HttpRequestTest {
 	@Test
 	public void successfulTest() throws Exception {
 		assertThat(this.restTemplate.getForObject("http://localhost:" + port
-				+ "/cadastro?modalidade=Futebol&local=Maracanã&inicio=28/02/2018 20:30&termino=28/02/2018 21:30&pais1=Chile&pais2=Brasil&etapa=Oitavas de Final",
+				+ "/cadastro?modalidade=Futebol&local=Maracanã&inicio=28/02/2018 18:30&termino=28/02/2018 19:30&pais1=Chile&pais2=Brasil&etapa=Oitavas de Final",
 				String.class)).contains("Evento cadastrado com sucesso!");
 	}
-	
+
 	@Test
-	public void conflictTest() throws Exception {
+	public void conflictingHourEventTest() throws Exception {
 		assertThat(this.restTemplate.getForObject("http://localhost:" + port
-				+ "/cadastro?modalidade=Futebol&local=Maracanã&inicio=28/02/2018 20:30&termino=28/02/2018 21:30&pais1=Chile&pais2=Brasil&etapa=Oitavas de Final",
+				+ "/cadastro?modalidade=Futebol&local=Maracanã&inicio=28/02/2018 19:00&termino=28/02/2018 20:00&pais1=Paraguai&pais2=Argentina&etapa=Oitavas de Final",
 				String.class)).contains("Horário conflitante com outro evento.");
+	}
+
+	@Test
+	public void fourEventsLimitPerDayTest() throws Exception {
+		assertThat(this.restTemplate.getForObject("http://localhost:" + port
+				+ "/cadastro?modalidade=Futebol&local=Maracanã&inicio=27/02/2018 18:30&termino=27/02/2018 19:30&pais1=Paraguai&pais2=Argentina&etapa=Oitavas de Final",
+				String.class)).contains("Evento cadastrado com sucesso!");
+		
+		assertThat(this.restTemplate.getForObject("http://localhost:" + port
+				+ "/cadastro?modalidade=Futebol&local=Maracanã&inicio=27/02/2018 19:30&termino=27/02/2018 20:30&pais1=Chile&pais2=Brasil&etapa=Oitavas de Final",
+				String.class)).contains("Evento cadastrado com sucesso!");
+
+		assertThat(this.restTemplate.getForObject("http://localhost:" + port
+				+ "/cadastro?modalidade=Futebol&local=Maracanã&inicio=27/02/2018 20:30&termino=27/02/2018 21:30&pais1=Chile&pais2=Brasil&etapa=Oitavas de Final",
+				String.class)).contains("Evento cadastrado com sucesso!");
+
+		assertThat(this.restTemplate.getForObject("http://localhost:" + port
+				+ "/cadastro?modalidade=Futebol&local=Maracanã&inicio=27/02/2018 21:30&termino=27/02/2018 22:30&pais1=Chile&pais2=Brasil&etapa=Oitavas de Final",
+				String.class)).contains("Evento cadastrado com sucesso!");
+		
+		assertThat(this.restTemplate.getForObject("http://localhost:" + port
+				+ "/cadastro?modalidade=Futebol&local=Maracanã&inicio=27/02/2018 22:30&termino=27/02/2018 23:30&pais1=Paraguai&pais2=Argentina&etapa=Oitavas de Final",
+				String.class)).contains("alcançou seu limite de 4 competições por dia.");
 	}
 
 	@Test
