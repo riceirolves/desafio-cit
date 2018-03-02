@@ -32,24 +32,28 @@ public class CadastroController {
 		LocalDateTime terminoConverted;
 		EventDAO eventDAO = new EventDAO();
 		List<String> validEtapas = eventDAO.getValidEtapas();
-		String exemple = "<br /> <br /> Exemplo: /cadastro?modalidade=Futebol&local=Maracanã&inicio=28/02/2018 20:30&termino=28/02/2018 21:30&pais1=Chile&pais2=Brasil&etapa=Oitavas de Final";
+		String example = "<br /> <br /> Exemplo: /cadastro?modalidade=Futebol&local=Maracanã&inicio=28/02/2018 20:30&termino=28/02/2018 21:30&pais1=Chile&pais2=Brasil&etapa=Oitavas de Final";
 
 		if (modalidade.equals(""))
-			return "Por favor informe a modalidade." + exemple;
+			return "Por favor informe a modalidade." + example;
 		if (local.equals(""))
-			return "Por favor informe o local." + exemple;
+			return "Por favor informe o local." + example;
 		if (inicio.equals(""))
-			return "Por favor informe o inicio do evento." + exemple;
+			return "Por favor informe o inicio do evento." + example;
 		if (termino.equals(""))
-			return "Por favor informe o término do evento." + exemple;
+			return "Por favor informe o término do evento." + example;
 		if (pais1.equals("") || pais2.equals(""))
-			return "Por favor informe os paises participantes." + exemple;
+			return "Por favor informe os paises participantes." + example;
 		if (etapa.equals("")) {
-			return "Por favor informe a etapa." + exemple;
+			return "Por favor informe a etapa." + example;
 		} else if (!validEtapas.contains(etapa)) {
 			return "Por favor informe uma etapa dentre as opções válidas: Eliminatórias, Oitavas de Final, Quartas de Final, Semifinal e Final.";
+		}else if(pais1.equalsIgnoreCase(pais2) && !etapa.equals("Semifinal") && !etapa.equals("Final")) {
+			return "Somente nas etapas semifinais e finais é permitido ter equipes do mesmo país se enfrentando.";
 		}
 
+		
+		
 		try {
 			inicioConverted = LocalDateTime.parse(inicio, DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
 			terminoConverted = LocalDateTime.parse(termino, DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
@@ -57,6 +61,8 @@ public class CadastroController {
 			return "Por favor informe a data e hora neste formato: "
 					+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) + ".";
 		}
+		
+		
 
 		Event event = new Event(modalidade, local, inicioConverted, terminoConverted, pais1, pais2, etapa);
 

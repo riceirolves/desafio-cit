@@ -22,17 +22,54 @@ public class HttpRequestTest {
 	private TestRestTemplate restTemplate;
 
 	@Test
-	public void wrongEtapaTest() throws Exception {
-		assertThat(this.restTemplate.getForObject("http://localhost:" + port
-				+ "/cadastro?modalidade=Futebol&local=Maracanã&inicio=28/02/2018 20:30&termino=28/02/2018 21:30&pais1=Chile&pais2=Brasil&etapa=Oito",
-				String.class)).contains(
-						"Por favor informe uma etapa dentre as opções válidas: Eliminatórias, Oitavas de Final, Quartas de Final, Semifinal e Final.");
-	}
-
-	@Test
 	public void successfulTest() throws Exception {
 		assertThat(this.restTemplate.getForObject("http://localhost:" + port
 				+ "/cadastro?modalidade=Futebol&local=Maracanã&inicio=28/02/2018 20:30&termino=28/02/2018 21:30&pais1=Chile&pais2=Brasil&etapa=Oitavas de Final",
+				String.class)).contains("Evento cadastrado com sucesso!");
+	}
+	
+	@Test
+	public void conflictTest() throws Exception {
+		assertThat(this.restTemplate.getForObject("http://localhost:" + port
+				+ "/cadastro?modalidade=Futebol&local=Maracanã&inicio=28/02/2018 20:30&termino=28/02/2018 21:30&pais1=Chile&pais2=Brasil&etapa=Oitavas de Final",
+				String.class)).contains("Horário conflitante com outro evento.");
+	}
+
+	@Test
+	public void sameCountryEliminatoriasTest() throws Exception {
+		assertThat(this.restTemplate.getForObject("http://localhost:" + port
+				+ "/cadastro?modalidade=Futebol&local=Maracanã&inicio=28/02/2018 20:30&termino=28/02/2018 21:30&pais1=Chile&pais2=Chile&etapa=Eliminatórias",
+				String.class)).contains(
+						"Somente nas etapas semifinais e finais é permitido ter equipes do mesmo país se enfrentando.");
+	}
+
+	@Test
+	public void sameCountryOitavasDeFinalTest() throws Exception {
+		assertThat(this.restTemplate.getForObject("http://localhost:" + port
+				+ "/cadastro?modalidade=Futebol&local=Maracanã&inicio=28/02/2018 20:30&termino=28/02/2018 21:30&pais1=Chile&pais2=Chile&etapa=Oitavas de Final",
+				String.class)).contains(
+						"Somente nas etapas semifinais e finais é permitido ter equipes do mesmo país se enfrentando.");
+	}
+
+	@Test
+	public void sameCountryQuartasDeFinalTest() throws Exception {
+		assertThat(this.restTemplate.getForObject("http://localhost:" + port
+				+ "/cadastro?modalidade=Futebol&local=Maracanã&inicio=28/02/2018 20:30&termino=28/02/2018 21:30&pais1=Chile&pais2=Chile&etapa=Quartas de Final",
+				String.class)).contains(
+						"Somente nas etapas semifinais e finais é permitido ter equipes do mesmo país se enfrentando.");
+	}
+
+	@Test
+	public void sameCountrySemifinalTest() throws Exception {
+		assertThat(this.restTemplate.getForObject("http://localhost:" + port
+				+ "/cadastro?modalidade=Xadrez&local=Maracanã&inicio=28/02/2018 20:30&termino=28/02/2018 21:30&pais1=Chile&pais2=Chile&etapa=Semifinal",
+				String.class)).contains("Evento cadastrado com sucesso!");
+	}
+
+	@Test
+	public void sameCountryFinalTest() throws Exception {
+		assertThat(this.restTemplate.getForObject("http://localhost:" + port
+				+ "/cadastro?modalidade=100 Metros Rasos&local=Maracanã&inicio=28/02/2018 20:30&termino=28/02/2018 21:30&pais1=Chile&pais2=Chile&etapa=Final",
 				String.class)).contains("Evento cadastrado com sucesso!");
 	}
 
